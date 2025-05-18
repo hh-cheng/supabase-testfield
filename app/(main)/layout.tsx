@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import '../globals.css'
 import AppHeader from '@/components/appHeader'
 import AppSidebar from '@/components/appSidebar'
+import { Toaster } from '@/components/ui/sonner'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { SidebarProvider } from '@/components/ui/sidebar'
 
@@ -44,6 +45,8 @@ export default function RootLayout({
             </div>
           </div>
         </SidebarProvider>
+
+        <Toaster />
       </body>
     </html>
   )
