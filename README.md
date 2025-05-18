@@ -1,4 +1,12 @@
-# supabase login
+# supabase test field
+
+## 环境变量
+
+```
+BASE_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
 
 ## 路由鉴权
 
@@ -7,9 +15,7 @@
 - 在中间件匹配路由处更改匹配正则
   ```ts
   export const config = {
-    matcher: [
-      '/((?!_next/static|_next/image|favicon.ico|public|login).*)',
-    ],
+    matcher: ['/((?!_next/static|_next/image|favicon.ico|public|login).*)'],
   }
   ```
 - 在 supabase 相关中间件中设置不需鉴权的路由
@@ -21,7 +27,7 @@
     const {
       data: { user },
     } = await supabase.auth.getUser()
-  
+
     if (!user && !publicRoutes.includes(request.nextUrl.pathname)) {
       // no user, potentially respond by redirecting the user to the login page
       const url = request.nextUrl.clone()
@@ -52,17 +58,19 @@ function ClientPage() {
   useEffect(() => {
     const getUser = () => {
       startTransition(async () => {
-        await firstValueFrom(of(createClient).pipe(
-          concatMap(supabase => supabase.auth.getUser()),
-          map(({ data: { user }, error }) => {
-            if (error) throw new Error(error)
-            setUser(user)
-          }),
-          catchError(err => {
-            console.error(err)
-            toast.error(err)
-          }),
-        ))
+        await firstValueFrom(
+          of(createClient).pipe(
+            concatMap((supabase) => supabase.auth.getUser()),
+            map(({ data: { user }, error }) => {
+              if (error) throw new Error(error)
+              setUser(user)
+            }),
+            catchError((err) => {
+              console.error(err)
+              toast.error(err)
+            }),
+          ),
+        )
       })
     }
 
@@ -125,4 +133,3 @@ async function ServerPage() {
 永远使用 `supabase.auth.getUser()` 来校验用户信息，而不是使用 `supabase.auth.getSession()`
 
 因为 cookies 等用户信息可能会被篡改，而 `getUser()` 会向 supabase 服务器发送校验请求，确保当前请求的用户信息真实性
-
