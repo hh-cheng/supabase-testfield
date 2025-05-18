@@ -40,6 +40,122 @@
   }
   ```
 
+## 退出登录
+
+### 1. 组件式实现
+
+创建一个专用的登出按钮组件，确保在任何地方都能一致地处理登出逻辑：
+
+```tsx
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+
+export default function LogoutButton() {
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut()
+      router.push('/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  return <button onClick={handleSignOut}>Logout</button>
+}
+```
+
+### 2. 内联使用
+
+在任何客户端组件内直接调用登出方法：
+
+```tsx
+'use client'
+
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+
+export function ProfilePage() {
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
+
+  return (
+    <div>
+      {/* 其他内容 */}
+      <button onClick={handleSignOut}>退出登录</button>
+    </div>
+  )
+}
+```
+
+### 3. 混合服务端/客户端方案（推荐）
+
+这种方法将登出逻辑放在服务端API路由中，客户端组件只负责调用API和处理导航：
+
+1. 首先创建一个服务端API路由：
+
+```tsx
+// app/api/auth/logout/route.ts
+import { createClient } from '@/lib/supabase/server'
+import { NextResponse } from 'next/server'
+
+export async function POST() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+
+  return NextResponse.json({ success: true })
+}
+```
+
+2. 然后创建一个精简的客户端组件来调用它：
+
+```tsx
+'use client'
+
+import { useRouter } from 'next/navigation'
+
+export default function LogoutButton() {
+  const router = useRouter()
+
+  const handleSignOut = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      })
+
+      if (!response.ok) throw new Error('Logout failed')
+      router.push('/login')
+    } catch (error) {
+      console.error('Error signing out:', error)
+    }
+  }
+
+  return <button onClick={handleSignOut}>Logout</button>
+}
+```
+
+这种方法的优点：
+
+- 将大部分认证逻辑移到服务端
+- 客户端组件保持简洁，只处理UI交互和导航
+- 更好的安全性，因为登出逻辑在服务端执行
+- 遵循Next.js应用路由最佳实践
+
+### 注意事项
+
+- 登出按钮必须是客户端组件，因为它需要处理点击事件和客户端导航
+- 登出操作后应该重定向到登录页面或首页
+- 登出后，Supabase会自动清除会话Cookie
+
 ## 获取登录用户信息
 
 > **客户端组件**

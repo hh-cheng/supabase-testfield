@@ -1,6 +1,7 @@
-import { User } from 'lucide-react'
 import Link from 'next/link'
+import { User, UserCircle } from 'lucide-react'
 
+import LogoutButton from '@/components/LogoutButton'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import {
   DropdownMenu,
@@ -26,8 +27,12 @@ export default function AppHeader() {
             <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
                 <Link href="/personal" className="cursor-pointer">
+                  <UserCircle className="h-5 w-5" />
                   Profile
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <LogoutButton />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
