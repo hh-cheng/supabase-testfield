@@ -8,9 +8,10 @@
     "start": "next start",
     "dev": "next dev --turbopack",
     "lint:style": "stylelint --fix \"app/**/*.css\"",
-    "lint:script": "eslint --ext .js,.jsx,.ts,.tsx --fix \"app/**/*.{js,jsx,ts,tsx}\""
+    "lint:script": "eslint --ext .js,.jsx,.ts,.tsx --fix \"app/**/*.{js,jsx,ts,tsx}\"",
+    "gen-types": "supabase gen types typescript --project-id saoxvnwaaarssrfgwavn > lib/supabase/database.types.ts"
   },
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.11.0",
   "lint-staged": {
     "**/*.{js,jsx,tsx,ts}": [
       "npm run lint:script",
@@ -74,6 +75,7 @@
     "stylelint-config-standard": "^38.0.0",
     "stylelint-config-tailwindcss": "^1.0.0",
     "stylelint-prettier": "^5.0.3",
+    "supabase": "^2.22.12",
     "tailwindcss": "^4.1.5",
     "tw-animate-css": "^1.3.0",
     "typescript": "^5.8.3"
