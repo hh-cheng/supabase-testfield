@@ -4,11 +4,10 @@ import Link from 'next/link'
 import { toast } from 'sonner'
 import { useTransition } from 'react'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
-import { firstValueFrom, from, tap } from 'rxjs'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { catchError, firstValueFrom, from, of, tap } from 'rxjs'
 
-import { login } from './actions'
+import { resetPassword } from './actions'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,25 +21,18 @@ import {
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(6, { message: 'Password must be at least 6 characters' }),
 })
 
 // Define the response type for our server actions
-type ActionResponse =
-  | { success: true; redirectTo: string }
-  | { success: false; error: string }
+type ActionResponse = { success: true } | { success: false; error: string }
 
-export default function LoginPage() {
-  const router = useRouter()
+export default function ForgetPassword() {
   const [submitting, startSubmitting] = useTransition()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: '',
-      password: '',
     },
   })
 
@@ -48,16 +40,22 @@ export default function LoginPage() {
     startSubmitting(async () => {
       const formData = new FormData()
       formData.append('email', data.email)
-      formData.append('password', data.password)
 
       await firstValueFrom(
-        from(login(formData) as Promise<ActionResponse>).pipe(
+        from(resetPassword(formData) as Promise<ActionResponse>).pipe(
           tap((result) => {
             if (result.success) {
-              toast.success('Login successful')
-              router.push(result.redirectTo)
-            } else {
-              toast.error(result.error)
+              toast.success('Password reset email sent. Check your inbox.')
+              form.reset()
+            }
+          }),
+          catchError((err) => {
+            toast.error(`Password reset failed: ${err}`)
+            return of({ success: false, error: String(err) } as ActionResponse)
+          }),
+          tap((result) => {
+            if (!result.success) {
+              toast.error(`Password reset failed: ${result.error}`)
             }
           }),
         ),
@@ -67,7 +65,7 @@ export default function LoginPage() {
 
   return (
     <div className="w-[350px] max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-6 text-center">Log in</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">Reset Password</h1>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -85,39 +83,20 @@ export default function LoginPage() {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input type="password" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="text-right">
-            <Link
-              href="/forget-password"
-              className="text-sm text-blue-600 hover:underline"
-            >
-              Forgot password?
-            </Link>
-          </div>
           <div>
-            <Button type="submit" className="w-full" loading={submitting}>
-              Log in
+            <Button
+              type="submit"
+              loading={submitting}
+              className="w-full mb-4 cursor-pointer"
+            >
+              Send Reset Link
             </Button>
-          </div>
 
-          <div className="mt-4 text-center text-sm">
-            <span className="text-gray-600">Don't have an account? </span>
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              Sign up
-            </Link>
+            <div className="text-center text-sm">
+              <Link href="/login" className="text-blue-600 hover:underline">
+                Back to Login
+              </Link>
+            </div>
           </div>
         </form>
       </Form>

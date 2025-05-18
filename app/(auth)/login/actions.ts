@@ -1,45 +1,41 @@
 'use server'
-import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
+import { catchError, concatMap, firstValueFrom, from, map, of } from 'rxjs'
 
 import { createClient } from '@/lib/supabase/server'
 
 export async function login(formData: FormData) {
-  const supabase = await createClient()
+  return await firstValueFrom(
+    from(createClient()).pipe(
+      concatMap((supabase) => {
+        const data = {
+          email: formData.get('email') as string,
+          password: formData.get('password') as string,
+        }
+        return supabase.auth.signInWithPassword(data)
+      }),
+      map(({ data, error }) => {
+        if (error) {
+          console.log('Supabase auth error:', error)
+          return {
+            success: false,
+            error: error.message || 'Authentication failed',
+          }
+        }
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
+        if (!data?.user) {
+          console.log('No user returned from Supabase')
+          return {
+            success: false,
+            error: 'No user found',
+          }
+        }
 
-  const { error } = await supabase.auth.signInWithPassword(data)
-
-  if (error) {
-    redirect('/error')
-  }
-
-  revalidatePath('/', 'layout')
-  redirect('/')
-}
-
-export async function signup(formData: FormData) {
-  const supabase = await createClient()
-
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get('email') as string,
-    password: formData.get('password') as string,
-  }
-
-  const { error } = await supabase.auth.signUp(data)
-
-  if (error) {
-    redirect('/error')
-  }
-
-  revalidatePath('/', 'layout')
-  redirect('/')
+        return { success: true, redirectTo: '/' }
+      }),
+      catchError((err) => {
+        console.log('err in login', err)
+        return of({ success: false, error: `${err}` })
+      }),
+    ),
+  )
 }
