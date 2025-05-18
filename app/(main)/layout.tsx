@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
 import '../globals.css'
+import AppHeader from '@/components/appHeader'
 import AppSidebar from '@/components/appSidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
 
@@ -32,9 +33,12 @@ export default function RootLayout({
           <div className="flex w-screen h-screen">
             <AppSidebar />
 
-            <main className="flex-1 overflow-y-auto">
-              <div className="container mx-auto p-6">{children}</div>
-            </main>
+            <div className="flex-1 flex flex-col">
+              <AppHeader />
+              <main className="flex-1 overflow-y-auto">
+                <div className="container mx-auto p-6">{children}</div>
+              </main>
+            </div>
           </div>
         </SidebarProvider>
       </body>
