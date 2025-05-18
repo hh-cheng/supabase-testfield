@@ -51,6 +51,31 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  if (user) {
+    const { data: roles } = await supabase
+      .from('user_roles')
+      .select(
+        `
+          id,
+          roles:role_id(name)
+        `,
+      )
+      .eq('user_id', user.id)
+
+    // Array<{id: number; roles: {name: string}}>
+    console.log('Roles query:', { roles }, user.id)
+
+    if (!roles?.length) {
+      // User has no roles assigned
+      // Option 1: Redirect to unauthorized page
+      // const url = request.nextUrl.clone()
+      // url.pathname = '/unauthorized'
+      // return NextResponse.redirect(url)
+      // Option 2: Return 403 status
+      // return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+  }
+
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
   // 1. Pass the request in it, like so:
