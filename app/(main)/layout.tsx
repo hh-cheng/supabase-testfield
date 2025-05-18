@@ -5,6 +5,7 @@ import '../globals.css'
 import AppHeader from '@/components/appHeader'
 import AppSidebar from '@/components/appSidebar'
 import { SidebarProvider } from '@/components/ui/sidebar'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,8 +36,10 @@ export default function RootLayout({
 
             <div className="flex-1 flex flex-col">
               <AppHeader />
-              <main className="flex-1 overflow-y-auto">
-                <div className="container mx-auto p-6">{children}</div>
+              <main className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="container mx-auto p-6">{children}</div>
+                </ScrollArea>
               </main>
             </div>
           </div>
