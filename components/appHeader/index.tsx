@@ -1,5 +1,13 @@
 import { User } from 'lucide-react'
+import Link from 'next/link'
+
 import { SidebarTrigger } from '@/components/ui/sidebar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 export default function AppHeader() {
   return (
@@ -8,10 +16,21 @@ export default function AppHeader() {
         <SidebarTrigger />
 
         <div className="flex items-center gap-4">
-          <button className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground">
-            <User className="h-5 w-5" />
-            <span className="sr-only">User menu</span>
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer">
+                <User className="h-5 w-5" />
+                <span className="sr-only">User menu</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href="/personal" className="cursor-pointer">
+                  Profile
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>

@@ -4,8 +4,8 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import '../globals.css'
 import AppHeader from '@/components/appHeader'
 import AppSidebar from '@/components/appSidebar'
-import { SidebarProvider } from '@/components/ui/sidebar'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { SidebarProvider } from '@/components/ui/sidebar'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
